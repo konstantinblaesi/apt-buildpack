@@ -60,16 +60,23 @@ func (s *Supplier) Run() error {
 		}
 	}
 
-	s.Log.BeginStep("Updating apt cache")
-	if output, err := s.Apt.Update(); err != nil {
-		s.Log.Error("Failed to update apt cache: %v", err)
+	s.Log.BeginStep("Downloading apt packages")
+	if output, err := s.Apt.Download(); err != nil {
+		s.Log.Error("Failed to download apt packages: %v", err)
 		s.Log.Info(output)
 		return err
 	}
 
-	s.Log.BeginStep("Downloading apt packages")
-	if output, err := s.Apt.Download(); err != nil {
-		s.Log.Error("Failed to download apt packages: %v", err)
+	s.Log.BeginStep("Adding apt https transport")
+	if output, err := s.Apt.AddHttpsTransport(); err != nil {
+		s.Log.Error("Failed to add apt https transport: %v", err)
+		s.Log.Info(output)
+		return err
+	}
+
+	s.Log.BeginStep("Updating apt cache")
+	if output, err := s.Apt.Update(); err != nil {
+		s.Log.Error("Failed to update apt cache: %v", err)
 		s.Log.Info(output)
 		return err
 	}

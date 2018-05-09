@@ -107,6 +107,15 @@ func (a *Apt) AddRepos() error {
 	return nil
 }
 
+func (a *Apt) AddHttpsTransport() (string, error) {
+	// install apt-transport-https
+	aptTransportHttps := filepath.Join(a.cacheDir, "archives", "apt-transport-https_1.0.1ubuntu2.17_amd64.deb")
+	if output, err := a.command.Output("/", "dpkg", "-x", aptTransportHttps, a.installDir); err != nil {
+		return output, err
+	}
+	return "", nil
+}
+
 func (a *Apt) Update() (string, error) {
 	args := append(a.options, "update")
 	return a.command.Output("/", "apt-get", args...)
@@ -116,6 +125,7 @@ func (a *Apt) Download() (string, error) {
 	debPackages := make([]string, 0)
 	repoPackages := make([]string, 0)
 
+	debPackages = append(debPackages, "http://security.ubuntu.com/ubuntu/pool/main/a/apt/apt-transport-https_1.0.1ubuntu2.17_amd64.deb")
 	for _, pkg := range a.Packages {
 		if strings.HasSuffix(pkg, ".deb") {
 			debPackages = append(debPackages, pkg)
@@ -133,17 +143,27 @@ func (a *Apt) Download() (string, error) {
 		}
 	}
 
-	// download all repo packages in one invocation
+	// install apt-transport-https package
+	//fmt.Println("BEFORE: Install apt-transport-https")
+	//aptArgs2 := append(a.options, "-y", "--force-yes", "-d", "install", "--reinstall")
+	//args2 := append(aptArgs2, "apt-transport-https")
+	//if output, err := a.command.Output("/", "apt-get", args2...); err != nil {
+	//	return output, err
+	//}
+	//fmt.Println("AFTER: Install apt-transport-https")
+
+	return "", nil
+}
+
+func (a *Apt) Install() (string, error) {
+	// download and install all repo packages in one invocation
 	aptArgs := append(a.options, "-y", "--force-yes", "-d", "install", "--reinstall")
 	args := append(aptArgs, repoPackages...)
 	if output, err := a.command.Output("/", "apt-get", args...); err != nil {
 		return output, err
 	}
 
-	return "", nil
-}
-
-func (a *Apt) Install() (string, error) {
+	// install all downloaded *.deb packages
 	files, err := filepath.Glob(filepath.Join(a.cacheDir, "archives", "*.deb"))
 	if err != nil {
 		return "", err
