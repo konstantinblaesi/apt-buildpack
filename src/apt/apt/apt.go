@@ -72,6 +72,13 @@ func (a *Apt) Setup() error {
 		return err
 	}
 
+	// install apt-transport-https package
+	aptArgs := append(a.options, "-y", "--force-yes", "-d", "install", "--reinstall")
+	args := append(aptArgs, "apt-transport-https")
+	if output, err := a.command.Output("/", "apt-get", args...); err != nil {
+		return err
+	}
+
 	return nil
 }
 
