@@ -21,6 +21,7 @@ type Apt interface {
 	Update() (string, error)
 	Download() (string, error)
 	Install() (string, error)
+	AddHttpsTransport() (string, error)
 }
 
 type Supplier struct {
