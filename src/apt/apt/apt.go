@@ -137,11 +137,10 @@ func (a *Apt) Download() (string, error) {
 	// download .deb packages individually
 	for _, pkg := range debPackages {
 		packageFile := filepath.Join(a.cacheDir, "archives", filepath.Base(pkg))
-		args := []string{"-s", "-L", "-z", packageFile, "-o", packageFile, pkg}
+		args := []string{"-s", "-L", packageFile, "-o", packageFile, pkg}
 		if output, err := a.command.Output("/", "curl", args...); err != nil {
-			//s := []string{"Download of", pkg, "with command 'curl", args, "' failed:", output}
-			//return strings.Join(s, ' '), err
-			return output, err
+			return fmt.Sprintf("Error: %s; Command: curl %s", output, args), err
+			//return output, err
 		}
 	}
 
