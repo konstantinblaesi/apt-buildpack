@@ -123,14 +123,14 @@ func (a *Apt) Update() (string, error) {
 
 func (a *Apt) Download() (string, error) {
 	debPackages := make([]string, 0)
-	repoPackages := make([]string, 0)
+	//repoPackages := make([]string, 0)
 
 	debPackages = append(debPackages, "http://security.ubuntu.com/ubuntu/pool/main/a/apt/apt-transport-https_1.0.1ubuntu2.17_amd64.deb")
 	for _, pkg := range a.Packages {
 		if strings.HasSuffix(pkg, ".deb") {
 			debPackages = append(debPackages, pkg)
 		} else if pkg != "" {
-			repoPackages = append(repoPackages, pkg)
+			//repoPackages = append(repoPackages, pkg)
 		}
 	}
 
@@ -157,6 +157,14 @@ func (a *Apt) Download() (string, error) {
 
 func (a *Apt) Install() (string, error) {
 	// download and install all repo packages in one invocation
+	repoPackages := make([]string, 0)
+
+	for _, pkg := range a.Packages {
+		if !strings.HasSuffix(pkg, ".deb") {
+			repoPackages = append(repoPackages, pkg)
+		}
+	}
+
 	aptArgs := append(a.options, "-y", "--force-yes", "-d", "install", "--reinstall")
 	args := append(aptArgs, repoPackages...)
 	if output, err := a.command.Output("/", "apt-get", args...); err != nil {
