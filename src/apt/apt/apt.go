@@ -139,7 +139,7 @@ func (a *Apt) Download() (string, error) {
 		packageFile := filepath.Join(a.cacheDir, "archives", filepath.Base(pkg))
 		args := []string{"-s", "-L", "-z", packageFile, "-o", packageFile, pkg}
 		if output, err := a.command.Output("/", "curl", args...); err != nil {
-			return output, err
+			return strings.Join("Download of", pkg, "with command 'curl", args, "' failed:", output, ' '), err
 		}
 	}
 
