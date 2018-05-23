@@ -110,7 +110,11 @@ func (a *Apt) AddRepos() error {
 func (a *Apt) AddHttpsTransport() (string, error) {
 	// install apt-transport-https
 	aptTransportHttps := filepath.Join(a.cacheDir, "archives", "apt-transport-https_1.0.1ubuntu2.17_amd64.deb")
-	if output, err := a.command.Output("/", "dpkg", "-i", aptTransportHttps); err != nil {
+	fmt.Println("Install apt https transport via: dpk -i %s", aptTransportHttps)
+	if output, err := a.command.Output("/", "file", aptTransportHttps); err != nil || output != "" {
+		fmt.Println("Out: %s, Err: %s", output, err)
+	}
+	if output, err := a.command.Output("/", "dpkg", "-i", aptTransportHttps); err != nil || output != "" {
 		return output, err
 	}
 	return "", nil
